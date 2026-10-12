@@ -1234,6 +1234,11 @@ helm_extra_args=()
 helm_post_renderer_args=()
 helm_extra_args+=(--set "server.telemetryEnabled=${OPENSHELL_TELEMETRY_ENABLED}")
 helm_extra_args+=(--set supervisor.sandboxRuntime.networkPolicyEnforced=true)
+if [ -n "${KATA_CONTAINERS_RUNTIME_CLASS:-}" ]; then
+  kctl label runtimeclass "${KATA_CONTAINERS_RUNTIME_CLASS}" \
+    openshell.ai/sandbox-attachable=true --overwrite
+  helm_extra_args+=(--set-string "server.defaultRuntimeClassName=${KATA_CONTAINERS_RUNTIME_CLASS}")
+fi
 if [ "${OPENSHELL_E2E_EXTERNAL_COMPUTE_DRIVER:-0}" = "1" ]; then
   if [ "${OPENSHELL_E2E_KUBE_BUILD_IMAGES}" != "1" ]; then
     echo "ERROR: external Kubernetes driver e2e requires OPENSHELL_E2E_KUBE_BUILD_IMAGES=1." >&2
